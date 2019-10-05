@@ -95,7 +95,6 @@ public class CandlePuzzleController : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            Debug.Log("hohsdfoh");
             if (this.PlayerEnteredArea != null)
             {
                 this.PlayerEnteredArea(this);
