@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public Camera GameCamera;
-    //public CameraRig CurrentRig;
-    //public CameraRig PreviousRig;
+    public PlayerController PlayerController;
+    public CameraController CameraController;
+    public CameraRig StartingRig;
+
+    public List<CandlePuzzleController> PuzzleControllers;
 
     private static GameController _Instance;
 
@@ -16,10 +18,38 @@ public class GameController : MonoBehaviour
     }
 
 
+    private void Start()
+    {
+        this.CameraController.SetRig(this.StartingRig);
+        this.CameraController.TransitionCompleted += this.HandleCameraTransitionCompleted;
+
+        for (int i = 0; i < this.PuzzleControllers.Count; i++)
+        {
+            this.PuzzleControllers[i].PlayerEnteredArea += HandlePlayerEnteredPuzzleArea;
+        }
+    }
+
+
+    private void HandleCameraTransitionCompleted(CameraRig targetRig)
+    {
+        if (targetRig == this.PlayerController.CameraRig)
+        {
+            this.PlayerController.FreezeMotion = false;
+        }
+    }
+
+
+    private void HandlePlayerEnteredPuzzleArea(CandlePuzzleController puzzleController)
+    {
+        this.CameraController.TransitionToRig(puzzleController.CameraRig);
+        this.PlayerController.FreezeMotion = true;
+    }
+
+
     public static Vector3 GetCursorWorldPosition()
     {
         Plane plane = new Plane(Vector3.back, 0f);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = _Instance.CameraController.GameCamera.ScreenPointToRay(Input.mousePosition);
         float point = 0f;
 
         Vector3 targetPos = Vector3.zero;
@@ -31,25 +61,12 @@ public class GameController : MonoBehaviour
     }
 
 
-    // TODO move camera rig stuff to separate component
-    //public float testCameraTimeRem = 5f;
-    //public float testCameraTime = 5f;
 
     private void Update()
     {
-        //if (this.testCameraTimeRem > 0f)
-        //{
-        //    this.testCameraTimeRem -= Time.deltaTime;
-
-        //    float d = Mathf.Clamp01(1f - (this.testCameraTimeRem / this.testCameraTime));
-        //    this.GameCamera.transform.position = Vector3.Lerp(this.PreviousRig.Anchor.position, this.CurrentRig.Anchor.position, d);
-
-        //    Quaternion rotationA = Quaternion.LookRotation(this.PreviousRig.Lookat.position - this.PreviousRig.Anchor.position);
-        //    Quaternion rotationB = Quaternion.LookRotation(this.CurrentRig.Lookat.position - this.CurrentRig.Anchor.position);
-
-        //    this.GameCamera.transform.rotation = Quaternion.Lerp(rotationA, rotationB, d);
-        //}
-
-
+        if (this.PlayerController.FreezeMotion == true && Input.GetKeyUp(KeyCode.Escape) == true)
+        {
+            this.CameraController.TransitionToRig(this.PlayerController.CameraRig);
+        }
     }
 }

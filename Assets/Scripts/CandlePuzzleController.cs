@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void CandlePuzzleEvent(CandlePuzzleController candlePuzzle);
+
 public class CandlePuzzleController : MonoBehaviour
 {
     public CandleSlot CandleSlotPrefab;
@@ -9,7 +11,9 @@ public class CandlePuzzleController : MonoBehaviour
     public List<CandleSlot> CandleSlots;
     public int[] CorrectSequence;
     public int[] StartingSequence;
-    
+    public CameraRig CameraRig;
+
+    public CandlePuzzleEvent PlayerEnteredArea;
 
     private CandleSlot CurrentlySelectedSlot;
     private Vector3 SelectedCandlePositionDelta;
@@ -82,6 +86,19 @@ public class CandlePuzzleController : MonoBehaviour
             for (int i = 0; i < this.CandleSlots.Count; i++)
             {
                 this.CandleSlots[i].CurrentCandle.FlameParticles.Play();
+            }
+        }
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            Debug.Log("hohsdfoh");
+            if (this.PlayerEnteredArea != null)
+            {
+                this.PlayerEnteredArea(this);
             }
         }
     }
