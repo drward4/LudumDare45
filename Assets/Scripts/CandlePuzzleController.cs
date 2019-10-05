@@ -14,9 +14,10 @@ public class CandlePuzzleController : MonoBehaviour
     public CameraRig CameraRig;
 
     public CandlePuzzleEvent PlayerEnteredArea;
+    public CandlePuzzleEvent PlayerLeftArea;
 
     private CandleSlot CurrentlySelectedSlot;
-    private Vector3 SelectedCandlePositionDelta;
+   // private Vector3 SelectedCandlePositionDelta;
 
 
     private void Start()
@@ -44,7 +45,7 @@ public class CandlePuzzleController : MonoBehaviour
         if (this.CurrentlySelectedSlot == null)
         {
             this.CurrentlySelectedSlot = candleSlot;
-            this.SelectedCandlePositionDelta = candleSlot.transform.position - GameController.GetCursorWorldPosition();
+            this.CurrentlySelectedSlot.CurrentCandle.transform.position = candleSlot.transform.position + Vector3.up * 0.5f; // GameController.GetCursorWorldPosition();
         }
         else
         {
@@ -91,9 +92,15 @@ public class CandlePuzzleController : MonoBehaviour
     }
 
 
+    private bool IsPlayerCollider(Collider collider)
+    {
+        return collider.gameObject.layer == LayerMask.NameToLayer("Player");
+    }
+
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (this.IsPlayerCollider(other))
         {
             if (this.PlayerEnteredArea != null)
             {
@@ -103,11 +110,23 @@ public class CandlePuzzleController : MonoBehaviour
     }
 
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (this.IsPlayerCollider(other))
+        {
+            if (this.PlayerLeftArea != null)
+            {
+                this.PlayerLeftArea(this);
+            }
+        }
+    }
+
+
     private void Update()
     {
         if (this.CurrentlySelectedSlot != null)
         {
-            this.CurrentlySelectedSlot.CurrentCandle.transform.position = GameController.GetCursorWorldPosition() + this.SelectedCandlePositionDelta;
+            //this.CurrentlySelectedSlot.CurrentCandle.transform.position = GameController.GetCursorWorldPosition() + this.SelectedCandlePositionDelta;
 
             // Cancel with Right Mouse button?
             //if (Input.GetMouseButtonUp(1) == true)
