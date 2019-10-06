@@ -14,8 +14,11 @@ public class CandlePuzzleController : MonoBehaviour
     public int[] StartingSequence;
     public CameraRig CameraRig;
     public AudioClip SolvedClip;
+    public AudioSource PuzzleAudio;
     public Image SheetMusicPiece;
     public bool IsSolved;
+    public bool IsActivePuzzle;
+    public bool ShowSpecialInfo;
 
     public CandlePuzzleEvent PlayerEnteredArea;
     public CandlePuzzleEvent PlayerLeftArea;
@@ -23,7 +26,6 @@ public class CandlePuzzleController : MonoBehaviour
 
     private CandleSlot CurrentlySelectedSlot;
    // private Vector3 SelectedCandlePositionDelta;
-
 
     private void Start()
     {
@@ -39,7 +41,7 @@ public class CandlePuzzleController : MonoBehaviour
             candle.NoteID = this.StartingSequence[i];
             this.CandleSlots[i].SetCurrentCandle(candle);
 
-            float size = ((float)this.StartingSequence[i] / 8f) * 0.6f + 0.4f;  // 8 notes in a music scale converted to range 0.4 - 1 
+            float size = ((float)this.StartingSequence[i] / 8f) * 2.5f;  // Adjust candle size according to note
             this.CandleSlots[i].CurrentCandle.SetSize(size);
         }
     }
@@ -47,6 +49,9 @@ public class CandlePuzzleController : MonoBehaviour
 
     private void HandleCandleSelected(CandleSlot candleSlot)
     {
+        if (this.IsActivePuzzle == false)
+            return;
+
         if (this.CurrentlySelectedSlot == null)
         {
             this.CurrentlySelectedSlot = candleSlot;

@@ -6,10 +6,12 @@ public class PlayerController : MonoBehaviour
 {
     public CameraRig CameraRig;
     public Rigidbody Rigidbody;
+    public AudioSource FootstepsAudio;
 
     public float MovementSpeed = 10f;
     public float TurnSpeed = 5f;
     public bool FreezeMotion;
+    public bool IsMoving;
 
     // In case the player should have to go back to the piano to write in, TBD
     public List<CandlePuzzleController> SolvedPuzzlesInHand;
@@ -35,23 +37,41 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetAxis("Vertical") != 0f)
             {
+                this.IsMoving = true;
                 // Make going backwards slower
                 Vector3 direction = this.transform.forward * Input.GetAxis("Vertical") * (Input.GetAxis("Vertical") < 0f ? 0.5f : 1f);
                 this.Rigidbody.MovePosition(this.Rigidbody.position + direction * this.MovementSpeed * Time.fixedDeltaTime);
             }
-
+            else
+            {
+                this.IsMoving = false;
+            }
 
             if (Input.GetAxis("Horizontal") != 0f)
             {
                 this.Rigidbody.MoveRotation(this.Rigidbody.rotation * Quaternion.Euler(new Vector3(0f, Input.GetAxis("Horizontal") * this.TurnSpeed * Time.fixedDeltaTime)));
             }
         }
+        else
+        {
+            this.IsMoving = false;
+        }
     }
 
 
     private void Update()
     {
-        
+        // TODO REMOVE (USE ANIMATOR EVENT FOR FOOTSTEP
+        if (this.IsMoving == true && this.FootstepsAudio.mute == true)
+        {
+            this.FootstepsAudio.mute = false;
+        }
+        else if (this.IsMoving == false && this.FootstepsAudio.mute == false)
+        {
+            this.FootstepsAudio.mute = true;
+        }
+            
+
     }
 
     private void LateUpdate()

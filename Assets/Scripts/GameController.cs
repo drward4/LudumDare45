@@ -20,6 +20,8 @@ public class GameController : MonoBehaviour
     public GameObject StartGamePanel;
     public GameObject EndGamePanel;
     public GameObject StartPuzzleButton;
+    public GameObject PuzzleSpecialInfoPanel;
+    public GameObject PuzzleExitButton;
     public GameObject ActivatePianoButton;
     public GameObject RestartGameButton;
 
@@ -62,6 +64,8 @@ public class GameController : MonoBehaviour
         this.EndGamePanel.SetActive(false);
         this.ActivatePianoButton.SetActive(false);
         this.StartPuzzleButton.SetActive(false);
+        this.PuzzleSpecialInfoPanel.SetActive(false);
+        this.PuzzleExitButton.SetActive(false);
     }
 
 
@@ -96,11 +100,6 @@ public class GameController : MonoBehaviour
         {
             this.PlayerController.FreezeMotion = false;
         }
-
-        if (this.CurrentProximityPuzzle != null)
-        {
-            this.StartPuzzleButton.SetActive(false);
-        }
     }
 
 
@@ -110,6 +109,12 @@ public class GameController : MonoBehaviour
         {
             this.StartPuzzle(this.CurrentProximityPuzzle);
         }
+    }
+
+
+    public void ExitPuzzlePressed()
+    {
+        this.ExitPuzzle();
     }
 
 
@@ -132,8 +137,40 @@ public class GameController : MonoBehaviour
 
     private void StartPuzzle(CandlePuzzleController puzzleController)
     {
+        puzzleController.IsActivePuzzle = true;
         this.CameraController.TransitionToRig(puzzleController.CameraRig);
         this.PlayerController.FreezeMotion = true;
+        this.PuzzleExitButton.SetActive(true);
+        this.StartPuzzleButton.SetActive(false);
+
+        if (puzzleController.ShowSpecialInfo == true)
+        {
+            this.PuzzleSpecialInfoPanel.SetActive(true);
+        }
+
+        if (puzzleController.PuzzleAudio != null && puzzleController.PuzzleAudio.clip != null)
+        {
+            puzzleController.PuzzleAudio.Play();
+        }
+    }
+
+
+    private void ExitPuzzle()
+    {
+        if (this.CurrentProximityPuzzle.PuzzleAudio != null && this.CurrentProximityPuzzle.PuzzleAudio.clip != null)
+        {
+            this.CurrentProximityPuzzle.PuzzleAudio.Stop();
+        }
+
+        if (this.CurrentProximityPuzzle.IsSolved == false)
+        {
+            this.StartPuzzleButton.SetActive(true);
+        }
+
+        this.CurrentProximityPuzzle.IsActivePuzzle = false;
+        this.PuzzleExitButton.SetActive(false);
+        this.PuzzleSpecialInfoPanel.SetActive(false);
+        this.CameraController.TransitionToRig(this.PlayerController.CameraRig);
     }
 
 
@@ -147,6 +184,7 @@ public class GameController : MonoBehaviour
         {
             StartCoroutine(this.DoPuzzleSolvedCinematic(puzzleController));
             this.PlayerController.SolvedPuzzlesInHand.Add(puzzleController);
+            this.PuzzleExitButton.SetActive(false);
         }
     }
 
@@ -195,8 +233,6 @@ public class GameController : MonoBehaviour
     {
         this.PlayerIsInPianoProximity = true;
 
-        Debug.Log("hi paino: " +this.AllPuzzlesAreSolved());
-
         if (this.AllPuzzlesAreSolved() == true)
         {
             this.ActivatePianoButton.SetActive(true);
@@ -228,6 +264,8 @@ public class GameController : MonoBehaviour
     //}
 
 
+
+
     private void Update()
     {
         if (this.CameraController.IsSetToRig(this.StartingRig) && Input.anyKey)
@@ -238,7 +276,7 @@ public class GameController : MonoBehaviour
         }
         else if (this.CurrentProximityPuzzle != null && Input.GetKeyUp(KeyCode.Escape) == true)
         {
-            this.CameraController.TransitionToRig(this.PlayerController.CameraRig);
+            this.ExitPuzzle();
         }
     }
 }
