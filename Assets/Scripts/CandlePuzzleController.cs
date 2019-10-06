@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public delegate void CandlePuzzleEvent(CandlePuzzleController candlePuzzle);
 
@@ -12,9 +13,13 @@ public class CandlePuzzleController : MonoBehaviour
     public int[] CorrectSequence;
     public int[] StartingSequence;
     public CameraRig CameraRig;
+    public AudioClip SolvedClip;
+    public Image SheetMusicPiece;
+    public bool IsSolved;
 
     public CandlePuzzleEvent PlayerEnteredArea;
     public CandlePuzzleEvent PlayerLeftArea;
+    public CandlePuzzleEvent PuzzleWasSolved;
 
     private CandleSlot CurrentlySelectedSlot;
    // private Vector3 SelectedCandlePositionDelta;
@@ -80,27 +85,26 @@ public class CandlePuzzleController : MonoBehaviour
             }
         }
 
-        Debug.Log("Correct? " + isCorrect);
-
         if (isCorrect == true)
         {
+            this.IsSolved = true;
+
             for (int i = 0; i < this.CandleSlots.Count; i++)
             {
                 this.CandleSlots[i].CurrentCandle.FlameParticles.Play();
+            }
+
+            if (this.PuzzleWasSolved != null)
+            {
+                this.PuzzleWasSolved(this);
             }
         }
     }
 
 
-    private bool IsPlayerCollider(Collider collider)
-    {
-        return collider.gameObject.layer == LayerMask.NameToLayer("Player");
-    }
-
-
     private void OnTriggerEnter(Collider other)
     {
-        if (this.IsPlayerCollider(other))
+        if (GameController.IsPlayerCollider(other))
         {
             if (this.PlayerEnteredArea != null)
             {
@@ -112,7 +116,7 @@ public class CandlePuzzleController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (this.IsPlayerCollider(other))
+        if (GameController.IsPlayerCollider(other))
         {
             if (this.PlayerLeftArea != null)
             {

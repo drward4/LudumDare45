@@ -11,7 +11,17 @@ public class PlayerController : MonoBehaviour
     public float TurnSpeed = 5f;
     public bool FreezeMotion;
 
+    // In case the player should have to go back to the piano to write in, TBD
+    public List<CandlePuzzleController> SolvedPuzzlesInHand;
+
     private Vector3 RigPositionDelta;
+
+
+    private void Awake()
+    {
+        this.SolvedPuzzlesInHand = new List<CandlePuzzleController>();
+    }
+
 
     private void Start()
     {
@@ -23,9 +33,11 @@ public class PlayerController : MonoBehaviour
     {
         if (this.FreezeMotion == false)
         {
-            if (Input.GetAxis("Vertical") > 0f)
+            if (Input.GetAxis("Vertical") != 0f)
             {
-                this.Rigidbody.MovePosition(this.Rigidbody.position + this.transform.forward * this.MovementSpeed * Time.fixedDeltaTime);
+                // Make going backwards slower
+                Vector3 direction = this.transform.forward * Input.GetAxis("Vertical") * (Input.GetAxis("Vertical") < 0f ? 0.5f : 1f);
+                this.Rigidbody.MovePosition(this.Rigidbody.position + direction * this.MovementSpeed * Time.fixedDeltaTime);
             }
 
 

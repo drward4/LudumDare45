@@ -16,6 +16,12 @@ public class CameraController : MonoBehaviour
     private float TransitionTimeRemaining;
 
 
+    public bool IsSetToRig(CameraRig rig)
+    {
+        return this.CurrentRig == rig;
+    }
+
+
     public void SetRig(CameraRig rig)
     {
         this.CurrentRig = rig;
