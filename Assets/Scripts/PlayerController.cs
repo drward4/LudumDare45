@@ -7,11 +7,13 @@ public class PlayerController : MonoBehaviour
     public CameraRig CameraRig;
     public Rigidbody Rigidbody;
     public AudioSource FootstepsAudio;
+    public AudioClip FootstepClip;
 
     public float MovementSpeed = 10f;
     public float TurnSpeed = 5f;
     public bool FreezeMotion;
-    public bool IsMoving;
+    //public bool IsMoving;
+    public Animator Animator;
 
     // In case the player should have to go back to the piano to write in, TBD
     public List<CandlePuzzleController> SolvedPuzzlesInHand;
@@ -22,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         this.SolvedPuzzlesInHand = new List<CandlePuzzleController>();
+        this.Animator = this.GetComponentInChildren<Animator>();
     }
 
 
@@ -37,14 +40,15 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetAxis("Vertical") != 0f)
             {
-                this.IsMoving = true;
+                this.Animator.SetBool("IsRunning", true);
+
                 // Make going backwards slower
                 Vector3 direction = this.transform.forward * Input.GetAxis("Vertical") * (Input.GetAxis("Vertical") < 0f ? 0.5f : 1f);
                 this.Rigidbody.MovePosition(this.Rigidbody.position + direction * this.MovementSpeed * Time.fixedDeltaTime);
             }
             else
             {
-                this.IsMoving = false;
+                this.Animator.SetBool("IsRunning", false);
             }
 
             if (Input.GetAxis("Horizontal") != 0f)
@@ -54,22 +58,28 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            this.IsMoving = false;
+            this.Animator.SetBool("IsRunning", false);
         }
+    }
+
+
+    public void PlayFootStep()
+    {
+        this.FootstepsAudio.PlayOneShot(this.FootstepClip);
     }
 
 
     private void Update()
     {
         // TODO REMOVE (USE ANIMATOR EVENT FOR FOOTSTEP
-        if (this.IsMoving == true && this.FootstepsAudio.mute == true)
-        {
-            this.FootstepsAudio.mute = false;
-        }
-        else if (this.IsMoving == false && this.FootstepsAudio.mute == false)
-        {
-            this.FootstepsAudio.mute = true;
-        }
+        //if (this.IsMoving == true && this.FootstepsAudio.mute == true)
+        //{
+        //    this.FootstepsAudio.mute = false;
+        //}
+        //else if (this.IsMoving == false && this.FootstepsAudio.mute == false)
+        //{
+        //    this.FootstepsAudio.mute = true;
+        //}
             
 
     }

@@ -185,6 +185,7 @@ public class GameController : MonoBehaviour
             StartCoroutine(this.DoPuzzleSolvedCinematic(puzzleController));
             this.PlayerController.SolvedPuzzlesInHand.Add(puzzleController);
             this.PuzzleExitButton.SetActive(false);
+            this.PuzzleSpecialInfoPanel.SetActive(false);
         }
     }
 
